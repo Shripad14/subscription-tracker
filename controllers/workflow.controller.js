@@ -14,7 +14,7 @@ export const sendReminders = serve( async (context) => {
 
     if(!subscription || subscription.status !== 'active') return;
 
-    const renewalDate = dayjs(Subscription.renewalDate);
+    const renewalDate = dayjs(subscription.renewalDate);
 
     if(renewalDate.isBefore(dayjs())){
         console.log(`Renewal date has passed for subscription ${subscriptionId}. Stopping workflow.`);
@@ -34,8 +34,8 @@ export const sendReminders = serve( async (context) => {
 });
 
 const fetchSubscription = async (context, subscriptionId) => {
-    return await context.run('get subscription', () => {
-        return Subscription.findById(subscriptionId).populate('user', 'name email');
+    return await context.run('get subscription', async () => {
+        return await Subscription.findById(subscriptionId).populate('user', 'name email');
     });
 }
 
