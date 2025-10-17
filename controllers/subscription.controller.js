@@ -71,3 +71,40 @@ export const getSubscriptionById = async (req, res, next) => {
     }
 
 }
+
+// UPDATE a subscription 
+export const updateSubscription = async (req, res, next) => {
+    
+    try {
+        const id = req.params.id;
+        const subscription = await Subscription.findById(id);
+
+        if(!subscription){
+            const error = new Error('subscription not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        // Verify ownership
+        if(subscription.user.id !== req.user._id){
+            const error = new Error('Access denied. Not your subscription.');
+            error.statusCode = 403;
+            throw error;
+        }
+
+        // Update subscription
+        const updatedSubscription = await Subscription.findByIdAndUpdate(
+            id,
+            req.body,
+            { new: true, runValidators: true }  
+        );
+
+        res.status(200).json({
+            success: true,
+            data: updateSubscription,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
