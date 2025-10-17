@@ -138,3 +138,40 @@ export const deleteSubscription = async (req, res, next) => {
         next(error);
     }
 }
+
+export const cancelSubscription = async (req, res, next) => {
+
+    try {
+        const id = req.params.id;
+        const subscription = await Subscription.findById(id);
+
+        if(!subscription){
+            const error = new Error('this subscription does not exist');
+            error.statuCode = 404;
+            throw error;
+        }
+
+        // verify owner
+        if(subscription.user.toString() !== req.user._id.toString()){
+            const error = new Error('Access denied. Not your account');
+            error.statuCode = 404;
+            throw error;
+        }
+
+        // Cancel subscription
+        subscription.status = 'cancelled';
+        subscription.cancelledAt = Date.now();
+
+        // Save changes
+        const cancelledSubscription = await Subscription.save();
+
+        res.status(200).json({
+            success: true,
+            data: cancelledSubscription,
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
