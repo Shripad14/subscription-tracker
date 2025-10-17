@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authorize } from "../middlewares/auth.middleware.js";
 import { 
     createSubscription, 
+    deleteSubscription, 
     getAllSubscriptions, 
     getSubscriptionById, 
     getUserSubscriptions, 
@@ -19,12 +20,10 @@ subscriptionRouter.post("/", authorize, createSubscription);    // CREATE a sub
 
 subscriptionRouter.put("/:id", authorize, updateSubscription);  // UPDATE sub details
 
-subscriptionRouter.delete("/:id", (req, res) => {
-    res.send({title: "DELETE a subscription"});
-});
+subscriptionRouter.delete("/:id", authorize, deleteSubscription );  // DELETE a sub
 
 // related to user-subscriptions
-subscriptionRouter.get("/user/:id", authorize, getUserSubscriptions);
+subscriptionRouter.get("/user/:id", authorize, getUserSubscriptions);   // GET a users all subs
 
 subscriptionRouter.post("/:id/cancel", (req, res) => {
     res.send({title: "Cancel a subscription"});

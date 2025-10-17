@@ -80,14 +80,14 @@ export const updateSubscription = async (req, res, next) => {
         const subscription = await Subscription.findById(id);
 
         if(!subscription){
-            const error = new Error('subscription not found');
+            const error = new Error('This subscription does not exist');
             error.statusCode = 404;
             throw error;
         }
 
         // Verify ownership
-        if(subscription.user.id !== req.user._id){
-            const error = new Error('Access denied. Not your subscription.');
+        if(subscription.user.toString() !== req.user._id.toString()){
+            const error = new Error('Access denied. Not your account.');
             error.statusCode = 403;
             throw error;
         }
@@ -101,10 +101,40 @@ export const updateSubscription = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            data: updateSubscription,
+            data: updatedSubscription,
         });
     } catch (error) {
         next(error);
     }
 }
 
+export const deleteSubscription = async (req, res, next) => {
+
+    try {
+        const id = req.params.id;
+        const subscription = await Subscription.findById(id);
+        
+        if(!subscription){
+            const error = new Error('this subscription does not exist');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        // Verify ownership
+        if(subscription.user.toString() !== req.user._id.toString()){
+            const error = new Error('Access denied. Not your account');
+            error.statusCode = 403;
+            throw error;
+        }
+
+        // Delete subscription
+        const deletedSubscription = await Subscription.findByIdAndDelete(id);
+        
+        res.status(200).json({
+            success: true,
+            data: deletedSubscription
+        })
+    } catch (error) {
+        next(error);
+    }
+}
